@@ -1,4 +1,4 @@
-console.log('Spotify Clone - Fixed Version');
+console.log('Spotify Clone - GitHub Compatible Version');
 
 let currentSong = new Audio();
 let songs = [];
@@ -12,34 +12,134 @@ function secondsToMinutesSeconds(seconds) {
     return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }
 
-// Fetch and display songs from a given folder
-async function getSongs(folder) {
-    currFolder = folder;
-    let res = await fetch(`${folder}/`);
-    let html = await res.text();
-
-    let div = document.createElement("div");
-    div.innerHTML = html;
-    let as = div.getElementsByTagName("a");
-
-    songs = [];
-    for (let i = 0; i < as.length; i++) {
-        const el = as[i];
-        if (el.href.endsWith(".mp3")) {
-            songs.push(el.href.split(`${folder}/`)[1]);
-        }
+// ✅ Local data (replace with your actual song files)
+let albums = [
+    {
+        folder: "angry_mood",
+        title: "Angry Mood",
+        description: "Energetic & powerful beats",
+        cover: "songs/angry_mood/cover.jpg",
+        tracks: ["angry_mood.mp3"]
+    },
+    {
+        folder: "bright_mood",
+        title: "Bright Mood",
+        description: "Feel the positivity",
+        cover: "songs/bright_mood/cover.jpg",
+        tracks: ["bright_mood.mp3"]
+    },
+    {
+        folder: "chill_mood",
+        title: "Chill Mood",
+        description: "Relax with calm tunes",
+        cover: "songs/chill_mood/cover.jpg",
+        tracks: ["chill_mood.mp3"]   // ✅ fixed name (was chill_mode.mp3)
+    },
+    {
+        folder: "dark_mood",
+        title: "Dark Mood",
+        description: "Deep and mysterious vibes",
+        cover: "songs/dark_mood/cover.jpg",
+        tracks: ["dark_mood.mp3"]
+    },
+    {
+        folder: "diljit",
+        title: "Diljit",
+        description: "Best of Diljit Dosanjh",
+        cover: "songs/diljit/cover.jpg",
+        tracks: ["diljit.mp3"]
+    },
+    {
+        folder: "funky_mood",
+        title: "Funky Mood",
+        description: "Fun and dance hits",
+        cover: "songs/funky_mood/cover.jpg",
+        tracks: ["funky_mood.mp3"]
+    },
+    {
+        folder: "happy_mood",
+        title: "Happy Mood",
+        description: "Joyful melodies",
+        cover: "songs/happy_mood/cover.jpg",
+        tracks: ["happy_mood.mp3"]
+    },
+    {
+        folder: "karan_aujla",
+        title: "Karan Aujla",
+        description: "Top Karan Aujla tracks",
+        cover: "songs/karan_aujla/cover.jpg",
+        tracks: ["karan_aujla.mp3"]   // ✅ fixed (was karan.mp3)
+    },
+    {
+        folder: "lofi",
+        title: "Lofi",
+        description: "Peaceful background beats",
+        cover: "songs/lofi/cover.jpg",
+        tracks: ["lofi.mp3"]
+    },
+    {
+        folder: "love_mood",
+        title: "Love Mood",
+        description: "Romantic tunes",
+        cover: "songs/love_mood/cover.jpg",
+        tracks: ["love_mood.mp3"]
+    },
+    {
+        folder: "uplift_mood",
+        title: "Uplift Mood",
+        description: "Motivational vibes",
+        cover: "songs/uplift_mood/cover.jpg",
+        tracks: ["uplift_mood.mp3"]
     }
+];
 
-    // Show song list
+
+// Show album cards
+function displayAlbums() {
+    let cardContainer = document.querySelector(".cardContainer");
+    cardContainer.innerHTML = "";
+
+    albums.forEach(album => {
+        cardContainer.innerHTML += `
+        <div data-folder="${album.folder}" class="card">
+            <div class="play">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 20V4L19 12L5 20Z" stroke="#141B34" fill="#000" stroke-width="1.5"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+            <img src="${album.cover}" alt="">
+            <h2>${album.title}</h2>
+            <p>${album.description}</p>
+        </div>`;
+    });
+
+    // Click → load songs from album
+    Array.from(document.getElementsByClassName("card")).forEach(card => {
+        card.addEventListener("click", e => {
+            const albumFolder = e.currentTarget.dataset.folder;
+            const albumData = albums.find(a => a.folder === albumFolder);
+            loadSongs(albumData);
+        });
+    });
+}
+
+// Load and display songs
+function loadSongs(album) {
+    currFolder = album.folder;
+    songs = album.tracks;
+
     let songUL = document.querySelector(".songList ul");
     songUL.innerHTML = "";
+
     for (const song of songs) {
         songUL.innerHTML += `
         <li>
             <img class="invert" width="34" src="img/music.svg" alt="">
             <div class="info">
-                <div>${song.replaceAll("%20", " ")}</div>
-                <div>Artist</div>
+                <div>${song}</div>
+                <div>${album.title}</div>
             </div>
             <div class="playnow">
                 <span>Play Now</span>
@@ -48,93 +148,31 @@ async function getSongs(folder) {
         </li>`;
     }
 
-    // Click event for each song
+    // Play song on click
     Array.from(document.querySelectorAll(".songList li")).forEach(e => {
         e.addEventListener("click", () => {
             playMusic(e.querySelector(".info div").innerText.trim());
         });
     });
 
-    return songs;
+    // Auto-play first song
+    playMusic(songs[0], true);
 }
 
-// Play / Pause track
-const playMusic = (track, pause = false) => {
-    currentSong.src = `${currFolder}/${track}`;
+// Play / Pause
+function playMusic(track, pause = false) {
+    currentSong.src = `songs/${currFolder}/${track}`;
     if (!pause) {
         currentSong.play();
         play.src = "img/pause.svg";
     }
     document.querySelector(".songinfo").innerText = decodeURI(track);
     document.querySelector(".songtime").innerText = "00:00 / 00:00";
-};
-
-// Display albums (each folder)
-async function displayAlbums() {
-    console.log("Loading albums...");
-    let res = await fetch(`./songs/`);
-    let html = await res.text();
-
-    let div = document.createElement("div");
-    div.innerHTML = html;
-    let anchors = div.getElementsByTagName("a");
-    let cardContainer = document.querySelector(".cardContainer");
-    cardContainer.innerHTML = "";
-
-    let arr = Array.from(anchors);
-    for (let i = 0; i < arr.length; i++) {
-        const e = arr[i];
-        if (e.href.includes("songs/") && !e.href.includes(".htaccess")) {
-    let folder = e.href.split("songs/")[1].replace("/", "");
-
-
-            try {
-                let meta = await fetch(`songs/${folder}/info.json`);
-                let data = await meta.json();
-
-                cardContainer.innerHTML += `
-                <div data-folder="${folder}" class="card">
-                    <div class="play">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 20V4L19 12L5 20Z" stroke="#141B34" fill="#000" stroke-width="1.5"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <img src="songs/${folder}/cover.jpg" alt="">
-                    <h2>${data.title}</h2>
-                    <p>${data.description}</p>
-                </div>`;
-            } catch (err) {
-                console.warn(`⚠️ Missing info.json in ${folder}`);
-            }
-        }
-    }
-
-    // Play songs from clicked album
-    Array.from(document.getElementsByClassName("card")).forEach(card => {
-        card.addEventListener("click", async item => {
-            songs = await getSongs(`songs/${item.currentTarget.dataset.folder}`);
-            playMusic(songs[0]);
-        });
-    });
 }
 
-// Main
-async function main() {
-    // Folder names inside "songs/"
-    let folders = [
-        "angry_mood", "bright_mood", "chill_mood", "dark_mood",
-        "diljit", "funky_mood", "happy_mood", "karan_aujla",
-        "lofi", "love_mood", "uplift_mood"
-    ];
-
-    // Load default folder
-    await getSongs(`songs/${folders[0]}`);
-    playMusic(songs[0], true);
-
-    // Show albums
-    await displayAlbums();
+// Main logic
+function main() {
+    displayAlbums();
 
     // Play / Pause button
     play.addEventListener("click", () => {
@@ -162,7 +200,7 @@ async function main() {
         currentSong.currentTime = (currentSong.duration * percent) / 100;
     });
 
-    // Hamburger menu toggle
+    // Hamburger menu
     document.querySelector(".hamburger").addEventListener("click", () => {
         document.querySelector(".left").style.left = "0";
     });
@@ -170,7 +208,7 @@ async function main() {
         document.querySelector(".left").style.left = "-120%";
     });
 
-    // Previous / Next
+    // Prev/Next buttons
     previous.addEventListener("click", () => {
         currentSong.pause();
         let index = songs.indexOf(currentSong.src.split("/").slice(-1)[0]);
@@ -183,7 +221,7 @@ async function main() {
         if (index + 1 < songs.length) playMusic(songs[index + 1]);
     });
 
-    // Volume range
+    // Volume
     document.querySelector(".range input").addEventListener("change", e => {
         currentSong.volume = parseInt(e.target.value) / 100;
         if (currentSong.volume > 0) {
@@ -192,7 +230,6 @@ async function main() {
         }
     });
 
-    // Mute / Unmute
     document.querySelector(".volume img").addEventListener("click", e => {
         if (e.target.src.includes("volume.svg")) {
             e.target.src = e.target.src.replace("volume.svg", "mute.svg");
