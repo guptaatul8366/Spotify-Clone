@@ -12,7 +12,6 @@ function secondsToMinutesSeconds(seconds) {
     return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }
 
-// ✅ Local data (replace with your actual song files)
 let albums = [
     {
         folder: "angry_mood",
@@ -33,7 +32,7 @@ let albums = [
         title: "Chill Mood",
         description: "Relax with calm tunes",
         cover: "songs/chill_mood/cover.jpg",
-        tracks: ["chill_mood.mp3"]   // ✅ fixed name (was chill_mode.mp3)
+        tracks: ["chill_mood.mp3"]   
     },
     {
         folder: "dark_mood",
@@ -68,7 +67,7 @@ let albums = [
         title: "Karan Aujla",
         description: "Top Karan Aujla tracks",
         cover: "songs/karan_aujla/cover.jpg",
-        tracks: ["karan_aujla.mp3"]   // ✅ fixed (was karan.mp3)
+        tracks: ["karan.mp3"]   
     },
     {
         folder: "lofi",
@@ -115,7 +114,7 @@ function displayAlbums() {
         </div>`;
     });
 
-    // Click → load songs from album
+    // load songs from album
     Array.from(document.getElementsByClassName("card")).forEach(card => {
         card.addEventListener("click", e => {
             const albumFolder = e.currentTarget.dataset.folder;
@@ -148,7 +147,7 @@ function loadSongs(album) {
         </li>`;
     }
 
-    // Play song on click
+    // Play songs by click
     Array.from(document.querySelectorAll(".songList li")).forEach(e => {
         e.addEventListener("click", () => {
             playMusic(e.querySelector(".info div").innerText.trim());
@@ -159,7 +158,7 @@ function loadSongs(album) {
     playMusic(songs[0], true);
 }
 
-// Play / Pause
+// Play and Pause
 function playMusic(track, pause = false) {
     currentSong.src = `songs/${currFolder}/${track}`;
     if (!pause) {
@@ -170,7 +169,6 @@ function playMusic(track, pause = false) {
     document.querySelector(".songtime").innerText = "00:00 / 00:00";
 }
 
-// Main logic
 function main() {
     displayAlbums();
 
